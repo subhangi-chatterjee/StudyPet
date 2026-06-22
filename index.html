@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Study Pet</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <div class="aurora aurora-left"></div>
+      <div class="aurora aurora-right"></div>
+
+      <header class="hero reveal">
+        <div class="hero-copy">
+          <p class="eyebrow">Offline Study Companion</p>
+          <h1>Study Pet</h1>
+          <p class="hero-text">
+            Turn assignments into small quests, care for your pet, and keep momentum without needing Wi-Fi or ChatGPT.
+          </p>
+        </div>
+
+        <div class="hero-pet panel">
+          <div class="pet-stage">
+            <div id="petAvatar" class="pet-avatar">o.o</div>
+          </div>
+          <div class="pet-stats">
+            <div>
+              <span class="stat-label">Pet</span>
+              <strong id="petName">Nib</strong>
+            </div>
+            <div>
+              <span class="stat-label">Mood</span>
+              <strong id="petMood">Curious</strong>
+            </div>
+            <div>
+              <span class="stat-label">Evolution</span>
+              <strong id="petEvolution">Stage 1</strong>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="dashboard">
+        <section class="panel reveal status-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Today</p>
+              <h2>How's your brain today?</h2>
+            </div>
+            <div class="focus-badge" id="focusBadge">Normal</div>
+          </div>
+
+          <div id="focusModes" class="focus-grid"></div>
+
+          <div class="stat-grid">
+            <article class="mini-stat">
+              <span class="stat-label">Level</span>
+              <strong id="petLevel">1</strong>
+            </article>
+            <article class="mini-stat">
+              <span class="stat-label">XP</span>
+              <strong id="petXp">0 / 50</strong>
+            </article>
+            <article class="mini-stat">
+              <span class="stat-label">Streak</span>
+              <strong id="petStreak">0 days</strong>
+            </article>
+            <article class="mini-stat">
+              <span class="stat-label">Assignments</span>
+              <strong id="assignmentCount">0</strong>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel reveal form-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Add Work</p>
+              <h2>Create an assignment</h2>
+            </div>
+          </div>
+
+          <form id="assignmentForm" class="assignment-form">
+            <label>
+              Assignment
+              <input id="assignmentTitle" name="title" type="text" placeholder="History essay due Friday" required />
+            </label>
+            <label>
+              Subject
+              <input id="assignmentSubject" name="subject" type="text" placeholder="History" />
+            </label>
+            <label>
+              Due date
+              <input id="assignmentDueAt" name="dueAt" type="date" />
+            </label>
+            <label>
+              Estimated minutes
+              <input id="assignmentMinutes" name="estimatedMinutes" type="number" min="5" step="5" value="30" />
+            </label>
+            <button type="submit" class="primary-button">Add assignment</button>
+          </form>
+        </section>
+
+        <section class="panel reveal recommend-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Next Up</p>
+              <h2>What should I work on right now?</h2>
+            </div>
+            <button id="refreshRecommendation" class="ghost-button" type="button">Refresh</button>
+          </div>
+
+          <div id="recommendationCard" class="recommendation-card"></div>
+        </section>
+
+        <section class="panel reveal assignments-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Quest Log</p>
+              <h2>Your assignments</h2>
+            </div>
+          </div>
+          <div id="assignmentList" class="assignment-list"></div>
+        </section>
+
+        <section class="panel reveal detail-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Selected Mission</p>
+              <h2 id="selectedAssignmentTitle">Choose an assignment</h2>
+            </div>
+            <div class="action-row">
+              <button id="rebuildSelected" class="ghost-button" type="button">Rebuild quests</button>
+              <button id="completeNextQuest" class="primary-button" type="button">Finish next quest</button>
+            </div>
+          </div>
+
+          <div id="selectedAssignmentMeta" class="assignment-meta"></div>
+          <div id="questList" class="quest-list"></div>
+        </section>
+
+        <section class="panel reveal skills-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Character Build</p>
+              <h2>Subject skills</h2>
+            </div>
+          </div>
+          <div id="skillList" class="skill-list"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

@@ -1,32 +1,48 @@
-# Study Pet + Quest Generator for Cardputer
+# Study Pet + Quest Generator
 
-This project is a starter firmware app for a `Cardputer`-based study companion designed for students with ADHD.
+This project now includes a browser-based version of the study companion so you can run it directly on your laptop.
 
-## What this MVP does
+## Browser version
+
+Open [/Users/subhangi/working_folder/Codes/cardputer/index.html](/Users/subhangi/working_folder/Codes/cardputer/index.html) in a browser, or serve the folder locally for the smoothest experience.
+
+What the browser app does:
 
 - Shows a virtual pet with mood, XP, level, streak, and evolution stage
-- Stores assignments locally on the device
-- Breaks assignments into smaller quests
+- Stores assignments in browser local storage
+- Breaks assignments into small offline-generated quests
 - Supports adaptive focus modes:
   - Locked In
   - Normal
   - Distracted
   - Exhausted
-- Connects over Wi-Fi to an OpenAI-powered endpoint for:
-  - quest generation
-  - study prioritization
-  - ADHD-style study coaching
+- Recommends the next assignment using local priority rules
+- Tracks subject-specific skill levels over time
 
-## Important architecture note
+## Current architecture
 
-The Cardputer should not literally "run ChatGPT" on-device. The realistic pattern is:
+This version is fully offline.
 
-1. Cardputer captures assignment text and user state
-2. Cardputer sends a small HTTPS request
-3. An OpenAI-backed API returns structured quest data and coaching text
-4. Cardputer displays the results and updates the pet/progression state
+The website keeps assignments in browser storage, turns them into small quests using local rules, and updates the pet based on completed study steps.
 
-For a quick prototype you can call OpenAI directly from the device, but for a real student-facing build you should use your own small backend so the API key is not embedded in firmware.
+## Running locally
+
+Simplest option:
+
+- Open `index.html` directly in your browser
+
+Better option:
+
+- From this folder run `python3 -m http.server 8000`
+- Open `http://localhost:8000`
+
+## Website controls
+
+- Add assignments with the form
+- Switch focus modes from the brain-state panel
+- Click an assignment to inspect its quests
+- Use `Rebuild quests` to resize tasks around your current focus mode
+- Use `Finish next quest` or the per-quest button to earn XP and level up
 
 ## Suggested roadmap
 
@@ -40,16 +56,15 @@ For a quick prototype you can call OpenAI directly from the device, but for a re
 
 ### Phase 2
 
-- OpenAI-generated quest chains
 - Session completion / partial completion flow
 - Subject skill leveling
-- Save data in flash
+- Better streak logic and session tracking
 
 ### Phase 3
 
-- PDF upload pipeline through a phone/web companion
-- Canvas integration via backend
-- Google Calendar integration via backend
+- Better assignment entry flow
+- Smarter local prioritization
+- Optional sync/import tools
 - Cosmetic unlocks and pet inventory
 
 ## Data model
@@ -79,109 +94,13 @@ For a quick prototype you can call OpenAI directly from the device, but for a re
 - evolutionStage
 - mood
 
-## API contract
+## Cardputer firmware
 
-The firmware expects an endpoint like:
-
-- `POST /quests`
-- `POST /coach`
-
-Example `/quests` request body:
-
-```json
-{
-  "assignment": {
-    "title": "History essay due Friday",
-    "subject": "History",
-    "due_at": "2026-06-03",
-    "estimated_minutes": 120
-  },
-  "focus_mode": "distracted"
-}
-```
-
-Example `/quests` response body:
-
-```json
-{
-  "quests": [
-    {
-      "title": "Choose a topic",
-      "description": "Pick one essay angle and write one sentence explaining it.",
-      "xp_reward": 10,
-      "estimated_minutes": 10
-    },
-    {
-      "title": "Find 3 sources",
-      "description": "Collect three usable articles or books and note why each helps.",
-      "xp_reward": 15,
-      "estimated_minutes": 15
-    }
-  ]
-}
-```
-
-Example `/coach` request body:
-
-```json
-{
-  "focus_mode": "normal",
-  "assignments": [
-    {
-      "title": "Math homework",
-      "due_at": "2026-05-31",
-      "estimated_minutes": 25
-    },
-    {
-      "title": "Chemistry quiz",
-      "due_at": "2026-06-05",
-      "estimated_minutes": 45
-    }
-  ]
-}
-```
-
-## OpenAI prompt shape
-
-Use the OpenAI Responses API and ask for JSON output with:
-
-- small actionable quests
-- no punishment language
-- ADHD-friendly tone
-- urgency-aware prioritization
-- short, concrete descriptions
-
-Official docs used for this architecture:
-
-- [Responses API](https://platform.openai.com/docs/api-reference/responses/compact?api-mode=responses)
-- [Text generation guide](https://platform.openai.com/docs/guides/text?api-mode=responses)
-- [Authentication guide](https://platform.openai.com/docs/api-reference/authentication?api-mode=responses)
-- [Migrate to Responses API](https://platform.openai.com/docs/guides/migrate-to-responses)
-
-## Backend setup
-
-1. Go to `backend/`
-2. Install dependencies with `npm install`
-3. Set `OPENAI_API_KEY`
-4. Start the service with `npm start`
-5. Point the Cardputer firmware `API_BASE_URL` at that backend
-
-## Firmware setup
-
-Update these constants in `src/main.cpp`:
-
-- `WIFI_SSID`
-- `WIFI_PASSWORD`
-- `API_BASE_URL`
-
-Optional direct-to-OpenAI approach:
-
-- replace your backend URL with `https://api.openai.com/v1/responses`
-- add bearer auth
-- return simplified JSON for the device
+The original Cardputer firmware is still in [/Users/subhangi/working_folder/Codes/cardputer/src/main.cpp](/Users/subhangi/working_folder/Codes/cardputer/src/main.cpp) if you want to keep developing the handheld version too.
 
 ## Notes
 
-- The current UI is intentionally simple and menu-driven for a first handheld prototype.
-- The firmware includes sample assignments so you can test the game loop before wiring real input forms.
-- If the exact Cardputer library API differs in your environment, only the display/keyboard glue should need adjustment.
+- The website is intentionally dependency-free so it can run locally with almost no setup.
+- The browser version persists data in local storage on your laptop.
+- Everything runs locally with no network dependency.
+- The Cardputer firmware and the browser app currently share the same offline quest-generation logic at a high level.

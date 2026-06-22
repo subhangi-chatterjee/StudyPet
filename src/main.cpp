@@ -1,15 +1,8 @@
 #include <Arduino.h>
-#include <WiFi.h>
-#include <HTTPClient.h>
-#include <ArduinoJson.h>
 #include <M5Cardputer.h>
 #include <vector>
 
 namespace {
-
-constexpr const char* WIFI_SSID = "YOUR_WIFI_SSID";
-constexpr const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
-constexpr const char* API_BASE_URL = "https://your-study-backend.example.com";
 
 enum class FocusMode {
   LockedIn,
@@ -54,6 +47,12 @@ struct AppState {
 
 AppState app;
 
+bool containsWord(const String& text, const char* needle) {
+  String lowered = text;
+  lowered.toLowerCase();
+  return lowered.indexOf(needle) >= 0;
+}
+
 String focusModeLabel(FocusMode mode) {
   switch (mode) {
     case FocusMode::LockedIn:
@@ -82,30 +81,107 @@ int focusQuestMinutes(FocusMode mode) {
   return 20;
 }
 
+int questXpForMinutes(int minutes) {
+  if (minutes <= 5) {
+    return 5;
+  }
+  if (minutes <= 12) {
+    return 10;
+  }
+  if (minutes <= 20) {
+    return 15;
+  }
+  if (minutes <= 30) {
+    return 20;
+  }
+  return 25;
+}
+
+String normalizedSubject(const Assignment& assignment) {
+  if (assignment.subject.length() > 0) {
+    return assignment.subject;
+  }
+
+  if (containsWord(assignment.title, "essay") || containsWord(assignment.title, "write")) {
+    return "Writing";
+  }
+  if (containsWord(assignment.title, "math") || containsWord(assignment.title, "worksheet")) {
+    return "Math";
+  }
+  if (containsWord(assignment.title, "read")) {
+    return "Reading";
+  }
+  return "General";
+}
+
+void pushQuest(std::vector<Quest>& quests, const String& title, const String& description, int minutes) {
+  Quest quest;
+  quest.title = title;
+  quest.description = description;
+  quest.xpReward = questXpForMinutes(minutes);
+  quest.estimatedMinutes = minutes;
+  quest.done = false;
+  quests.push_back(quest);
+}
+
+void generateOfflineQuests(Assignment& assignment) {
+  assignment.quests.clear();
+  const String subject = normalizedSubject(assignment);
+  const int preferredMinutes = focusQuestMinutes(app.focusMode);
+
+  if (subject == "History" || subject == "Writing") {
+    pushQuest(assignment.quests, "Pick the angle", "Choose the topic or argument you want to make.", min(preferredMinutes, 10));
+    pushQuest(assignment.quests, "Collect evidence", "Find facts, quotes, or sources you can use.", preferredMinutes);
+    pushQuest(assignment.quests, "Build the outline", "List the intro, key points, and closing idea.", preferredMinutes);
+    pushQuest(assignment.quests, "Write one section", "Draft the easiest section first to build momentum.", preferredMinutes);
+    if (assignment.estimatedMinutes > 90) {
+      pushQuest(assignment.quests, "Revise and polish", "Clean up wording and check the final structure.", preferredMinutes);
+    }
+  } else if (subject == "Math") {
+    pushQuest(assignment.quests, "Set up your space", "Open the worksheet and mark the first doable problem.", min(preferredMinutes, 5));
+    pushQuest(assignment.quests, "Solve the first chunk", "Complete a small set of problems without worrying about perfection.", preferredMinutes);
+    pushQuest(assignment.quests, "Check tricky steps", "Review any mistakes and fix the hardest question.", min(preferredMinutes, 15));
+    if (assignment.estimatedMinutes > 25) {
+      pushQuest(assignment.quests, "Finish the last chunk", "Wrap up the remaining problems.", preferredMinutes);
+    }
+  } else if (subject == "Reading") {
+    pushQuest(assignment.quests, "Preview the reading", "Scan headings and bold terms before diving in.", min(preferredMinutes, 5));
+    pushQuest(assignment.quests, "Read one chunk", "Work through one section and underline key ideas.", preferredMinutes);
+    pushQuest(assignment.quests, "Write quick notes", "Capture 3 to 5 important takeaways.", min(preferredMinutes, 10));
+    if (assignment.estimatedMinutes > 30) {
+      pushQuest(assignment.quests, "Read the next chunk", "Keep going with one more section.", preferredMinutes);
+    }
+  } else {
+    pushQuest(assignment.quests, "Define the task", "Write what done looks like in one short sentence.", min(preferredMinutes, 5));
+    pushQuest(assignment.quests, "Start the first step", "Do the smallest part that moves the assignment forward.", preferredMinutes);
+    pushQuest(assignment.quests, "Make progress visible", "Check off what is complete and note what remains.", min(preferredMinutes, 10));
+    if (assignment.estimatedMinutes > 40) {
+      pushQuest(assignment.quests, "Finish another chunk", "Complete one more small piece while momentum is up.", preferredMinutes);
+    }
+  }
+
+  assignment.progressPercent = 0;
+  app.statusLine = "Built local quest chain";
+}
+
 void seedAssignments() {
   Assignment history;
   history.title = "History essay due Friday";
   history.subject = "History";
   history.dueAt = "2026-06-03";
   history.estimatedMinutes = 120;
-  history.quests = {
-      {"Choose a topic", "Pick one essay angle and write a one-sentence thesis.", 10, 10, false},
-      {"Find 3 sources", "Collect three useful sources and note why each matters.", 15, 15, false},
-      {"Create outline", "Write intro, body points, and closing bullets.", 20, 20, false},
-  };
 
   Assignment math;
   math.title = "Math worksheet chapter 8";
   math.subject = "Math";
   math.dueAt = "2026-05-31";
   math.estimatedMinutes = 30;
-  math.quests = {
-      {"Solve problems 1-5", "Warm up with the first five questions.", 10, 10, false},
-      {"Solve problems 6-10", "Finish the second half of the worksheet.", 15, 15, false},
-  };
 
   app.assignments.push_back(history);
   app.assignments.push_back(math);
+  for (auto& assignment : app.assignments) {
+    generateOfflineQuests(assignment);
+  }
 }
 
 void addXp(int amount) {
@@ -174,76 +250,8 @@ void drawUi() {
   M5Cardputer.Display.setTextColor(CYAN);
   M5Cardputer.Display.printf("\nNext: %s\n", recommendedTask().c_str());
   M5Cardputer.Display.setTextColor(LIGHTGREY);
-  M5Cardputer.Display.printf("\nA=Quest  B=Done  `=Focus\n");
+  M5Cardputer.Display.printf("\nA=Rebuild  B=Done  `=Focus\n");
   M5Cardputer.Display.printf("%s\n", app.statusLine.c_str());
-}
-
-bool connectWifi() {
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-
-  const unsigned long start = millis();
-  while (WiFi.status() != WL_CONNECTED && millis() - start < 12000) {
-    delay(250);
-  }
-
-  return WiFi.status() == WL_CONNECTED;
-}
-
-String buildQuestRequestJson(const Assignment& assignment) {
-  StaticJsonDocument<1024> doc;
-  JsonObject assignmentObj = doc["assignment"].to<JsonObject>();
-  assignmentObj["title"] = assignment.title;
-  assignmentObj["subject"] = assignment.subject;
-  assignmentObj["due_at"] = assignment.dueAt;
-  assignmentObj["estimated_minutes"] = assignment.estimatedMinutes;
-  doc["focus_mode"] = focusModeLabel(app.focusMode);
-
-  String body;
-  serializeJson(doc, body);
-  return body;
-}
-
-bool fetchGeneratedQuests(Assignment& assignment) {
-  if (WiFi.status() != WL_CONNECTED) {
-    app.statusLine = "Wi-Fi not connected";
-    return false;
-  }
-
-  HTTPClient http;
-  const String url = String(API_BASE_URL) + "/quests";
-  http.begin(url);
-  http.addHeader("Content-Type", "application/json");
-
-  const int responseCode = http.POST(buildQuestRequestJson(assignment));
-  if (responseCode <= 0) {
-    app.statusLine = "Quest API error";
-    http.end();
-    return false;
-  }
-
-  const String payload = http.getString();
-  http.end();
-
-  DynamicJsonDocument doc(4096);
-  const auto error = deserializeJson(doc, payload);
-  if (error) {
-    app.statusLine = "Bad quest JSON";
-    return false;
-  }
-
-  assignment.quests.clear();
-  for (JsonObject item : doc["quests"].as<JsonArray>()) {
-    Quest quest;
-    quest.title = item["title"] | "Untitled quest";
-    quest.description = item["description"] | "";
-    quest.xpReward = item["xp_reward"] | 10;
-    quest.estimatedMinutes = item["estimated_minutes"] | focusQuestMinutes(app.focusMode);
-    assignment.quests.push_back(quest);
-  }
-
-  app.statusLine = "Generated quest chain";
-  return true;
 }
 
 void cycleFocusMode() {
@@ -301,7 +309,7 @@ void handleKeyboard() {
 
   if (M5Cardputer.Keyboard.isKeyPressed('a') || M5Cardputer.Keyboard.isKeyPressed('A')) {
     if (!app.assignments.empty()) {
-      fetchGeneratedQuests(app.assignments[app.selectedAssignment]);
+      generateOfflineQuests(app.assignments[app.selectedAssignment]);
     }
   }
 
@@ -324,11 +332,7 @@ void setup() {
   Serial.begin(115200);
 
   seedAssignments();
-  if (connectWifi()) {
-    app.statusLine = "Wi-Fi ready";
-  } else {
-    app.statusLine = "Offline demo mode";
-  }
+  app.statusLine = "Offline study pet ready";
   drawUi();
 }
 
