@@ -1,6 +1,6 @@
 # Study Pet + Quest Generator
 
-This project now includes a browser-based version of the study companion so you can run it directly on your laptop.
+This project now includes a browser-based version of the study companion so you can run it directly on your laptop or publish it with GitHub Pages.
 
 ## Browser version
 
@@ -24,6 +24,23 @@ What the browser app does:
 This version is fully offline.
 
 The website keeps assignments in browser storage, turns them into small quests using local rules, and updates the pet based on completed study steps.
+
+## Run from GitHub
+
+This repo is set up to deploy to GitHub Pages from the `main` branch.
+
+After you push to GitHub:
+
+1. Open your repo settings on GitHub
+2. Go to `Pages`
+3. Set `Source` to `GitHub Actions`
+4. Push your latest changes to `main`
+
+Your site URL should be:
+
+- [https://subhangi-chatterjee.github.io/StudyPet/](https://subhangi-chatterjee.github.io/StudyPet/)
+
+If GitHub Pages is already enabled for the repo, pushing to `main` should trigger deployment automatically through `.github/workflows/deploy-pages.yml`.
 
 ## Running locally
 
