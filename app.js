@@ -9,35 +9,7 @@ const focusModes = [
 
 const timerPresets = [10, 25, 45, 60];
 
-const defaultAssignments = [
-  {
-    id: createId(),
-    title: "History essay due Friday",
-    subject: "History",
-    dueAt: "2026-06-26",
-    estimatedMinutes: 120,
-    progressPercent: 0,
-    quests: []
-  },
-  {
-    id: createId(),
-    title: "Math worksheet chapter 8",
-    subject: "Math",
-    dueAt: "2026-06-23",
-    estimatedMinutes: 30,
-    progressPercent: 0,
-    quests: []
-  },
-  {
-    id: createId(),
-    title: "Biology reading pages 120-145",
-    subject: "Biology",
-    dueAt: "2026-06-24",
-    estimatedMinutes: 45,
-    progressPercent: 0,
-    quests: []
-  }
-];
+const defaultAssignments = [];
 
 const defaultState = {
   pet: {
@@ -466,6 +438,7 @@ function renderQuestBoard() {
                     data-progress-quest="${quest.key}"
                   />
                   <div class="quest-secondary-actions">
+                    <button class="ghost-button" type="button" data-remove-quest="${quest.key}">Remove Quest</button>
                     <button class="ghost-button" type="button" data-finish-quest="${quest.key}">Finish Quest</button>
                   </div>
                 </div>
@@ -491,6 +464,12 @@ function renderQuestBoard() {
   elements.questBoard.querySelectorAll("[data-finish-quest]").forEach((button) => {
     button.addEventListener("click", () => {
       finishQuestByKey(button.dataset.finishQuest);
+    });
+  });
+
+  elements.questBoard.querySelectorAll("[data-remove-quest]").forEach((button) => {
+    button.addEventListener("click", () => {
+      removeQuestByKey(button.dataset.removeQuest);
     });
   });
 }
@@ -692,6 +671,29 @@ function finishQuestByKey(questKey) {
     return;
   }
   completeQuest(quest.assignmentId, quest.questIndex);
+  saveAndRender();
+}
+
+function removeQuestByKey(questKey) {
+  const quest = questByKey(questKey);
+  if (!quest) {
+    return;
+  }
+
+  const shouldRemove = window.confirm(`Remove "${quest.title}" from the quest board? Use this if the assignment was cancelled or no longer matters.`);
+  if (!shouldRemove) {
+    return;
+  }
+
+  const assignment = assignmentById(quest.assignmentId);
+  if (!assignment) {
+    return;
+  }
+
+  assignment.quests.splice(quest.questIndex, 1);
+  assignment.totalQuestCount = Math.max(assignment.completedQuestCount || 0, assignment.quests.length + (assignment.completedQuestCount || 0));
+  updateAssignmentProgress(assignment);
+  state.statusLine = `"${quest.title}" was removed from the quest board.`;
   saveAndRender();
 }
 
