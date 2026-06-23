@@ -3,153 +3,234 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Study Pet</title>
+    <title>StudyPet</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <div class="page-shell">
-      <div class="aurora aurora-left"></div>
-      <div class="aurora aurora-right"></div>
+      <div class="page-glow page-glow-left"></div>
+      <div class="page-glow page-glow-right"></div>
 
-      <header class="hero reveal">
-        <div class="hero-copy">
-          <p class="eyebrow">Offline Study Companion</p>
-          <h1>Study Pet</h1>
-          <p class="hero-text">
-            Turn assignments into small quests, care for your pet, and keep momentum without needing Wi-Fi or ChatGPT.
-          </p>
+      <header class="topbar">
+        <div class="brand-block">
+          <p class="eyebrow">Cozy RPG Study Hub</p>
+          <div class="brand-row">
+            <h1>StudyPet</h1>
+            <p class="tagline">Turn homework into quests</p>
+          </div>
         </div>
 
-        <div class="hero-pet panel">
-          <div class="pet-stage">
-            <div id="petAvatar" class="pet-avatar">o.o</div>
-          </div>
-          <div class="pet-stats">
-            <div>
-              <span class="stat-label">Pet</span>
-              <strong id="petName">Nib</strong>
+        <div class="topbar-actions">
+          <div class="header-stats">
+            <div class="header-stat">
+              <span class="stat-label">Level</span>
+              <strong id="headerLevel">1</strong>
             </div>
-            <div>
-              <span class="stat-label">Mood</span>
-              <strong id="petMood">Curious</strong>
+            <div class="header-stat header-xp">
+              <span class="stat-label">XP</span>
+              <strong id="headerXp">0 / 50</strong>
             </div>
-            <div>
-              <span class="stat-label">Evolution</span>
-              <strong id="petEvolution">Stage 1</strong>
+            <div class="header-stat">
+              <span class="stat-label">Streak</span>
+              <strong id="headerStreak">0 days</strong>
             </div>
           </div>
+          <button id="openAssignmentModal" class="primary-button" type="button">+ Add Assignment</button>
         </div>
       </header>
 
       <main class="dashboard">
-        <section class="panel reveal status-panel">
-          <div class="panel-heading">
+        <section class="panel pet-panel">
+          <div class="panel-title">
             <div>
-              <p class="eyebrow">Today</p>
-              <h2>How's your brain today?</h2>
-            </div>
-            <div class="focus-badge" id="focusBadge">Normal</div>
-          </div>
-
-          <div id="focusModes" class="focus-grid"></div>
-
-          <div class="stat-grid">
-            <article class="mini-stat">
-              <span class="stat-label">Level</span>
-              <strong id="petLevel">1</strong>
-            </article>
-            <article class="mini-stat">
-              <span class="stat-label">XP</span>
-              <strong id="petXp">0 / 50</strong>
-            </article>
-            <article class="mini-stat">
-              <span class="stat-label">Streak</span>
-              <strong id="petStreak">0 days</strong>
-            </article>
-            <article class="mini-stat">
-              <span class="stat-label">Assignments</span>
-              <strong id="assignmentCount">0</strong>
-            </article>
-          </div>
-        </section>
-
-        <section class="panel reveal form-panel">
-          <div class="panel-heading">
-            <div>
-              <p class="eyebrow">Add Work</p>
-              <h2>Create an assignment</h2>
+              <p class="eyebrow">Pet Camp</p>
+              <h2>Nib's campfire corner</h2>
             </div>
           </div>
 
-          <form id="assignmentForm" class="assignment-form">
-            <label>
-              Assignment
-              <input id="assignmentTitle" name="title" type="text" placeholder="History essay due Friday" required />
-            </label>
-            <label>
-              Subject
-              <input id="assignmentSubject" name="subject" type="text" placeholder="History" />
-            </label>
-            <label>
-              Due date
-              <input id="assignmentDueAt" name="dueAt" type="date" />
-            </label>
-            <label>
-              Estimated minutes
-              <input id="assignmentMinutes" name="estimatedMinutes" type="number" min="5" step="5" value="30" />
-            </label>
-            <button type="submit" class="primary-button">Add assignment</button>
-          </form>
+          <div id="petCamp" class="pet-camp mood-curious">
+            <div class="pet-scene">
+              <div class="scene-stars"></div>
+              <div class="scene-ground"></div>
+              <div class="pet-wrap">
+                <svg id="petSvg" class="pet-svg" viewBox="0 0 220 220" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="petBodyGradient" x1="0%" x2="100%" y1="0%" y2="100%">
+                      <stop offset="0%" stop-color="#f7c986"></stop>
+                      <stop offset="100%" stop-color="#de8f57"></stop>
+                    </linearGradient>
+                  </defs>
+                  <ellipse class="pet-shadow" cx="110" cy="183" rx="55" ry="18"></ellipse>
+                  <path class="pet-ear pet-ear-left" d="M68 74C60 52 74 36 92 44C88 58 86 70 84 86Z"></path>
+                  <path class="pet-ear pet-ear-right" d="M152 74C160 52 146 36 128 44C132 58 134 70 136 86Z"></path>
+                  <path
+                    class="pet-body"
+                    d="M110 44C145 44 174 72 176 111C178 146 153 176 110 176C67 176 42 146 44 111C46 72 75 44 110 44Z"
+                  ></path>
+                  <circle class="pet-blush pet-blush-left" cx="79" cy="118" r="8"></circle>
+                  <circle class="pet-blush pet-blush-right" cx="141" cy="118" r="8"></circle>
+                  <circle class="pet-eye" cx="88" cy="106" r="8"></circle>
+                  <circle class="pet-eye" cx="132" cy="106" r="8"></circle>
+                  <circle class="pet-eye-spark" cx="91" cy="103" r="2"></circle>
+                  <circle class="pet-eye-spark" cx="135" cy="103" r="2"></circle>
+                  <path id="petMouth" class="pet-mouth" d="M96 132C102 140 118 140 124 132"></path>
+                  <path class="pet-cheek-line pet-cheek-line-left" d="M63 129C68 126 72 126 76 129"></path>
+                  <path class="pet-cheek-line pet-cheek-line-right" d="M144 129C148 126 152 126 157 129"></path>
+                </svg>
+              </div>
+            </div>
+
+            <div class="pet-copy">
+              <div class="pet-name-row">
+                <div>
+                  <p class="stat-label">Pet Name</p>
+                  <h3 id="petName">Nib</h3>
+                </div>
+                <button id="renamePetButton" class="icon-button" type="button" aria-label="Rename pet">Rename</button>
+              </div>
+
+              <div class="pet-details">
+                <div class="detail-pill">
+                  <span class="stat-label">Mood</span>
+                  <strong id="petMood">Curious</strong>
+                </div>
+                <div class="detail-pill">
+                  <span class="stat-label">Evolution</span>
+                  <strong id="petEvolution">Stage 1</strong>
+                </div>
+                <div class="detail-pill">
+                  <span class="stat-label">Assignments</span>
+                  <strong id="assignmentCount">0</strong>
+                </div>
+              </div>
+
+              <div class="xp-block">
+                <div class="xp-row">
+                  <span class="stat-label">Growth Bar</span>
+                  <strong id="petXp">0 / 50 XP</strong>
+                </div>
+                <div class="xp-track">
+                  <div id="petXpFill" class="xp-fill"></div>
+                </div>
+              </div>
+
+              <p id="petMessage" class="pet-message">Nib is curious today. Complete one quest to help Nib grow.</p>
+            </div>
+          </div>
         </section>
 
-        <section class="panel reveal recommend-panel">
-          <div class="panel-heading">
+        <section class="panel quest-panel">
+          <div class="panel-title quest-title-row">
             <div>
-              <p class="eyebrow">Next Up</p>
+              <p class="eyebrow">Today's Quest Board</p>
+              <h2>Pick one small mission.</h2>
+            </div>
+            <div id="focusModes" class="brain-mode-row" aria-label="Brain mode selector"></div>
+          </div>
+
+          <div id="questBoardLead" class="board-banner"></div>
+          <div id="questBoard" class="quest-board"></div>
+        </section>
+
+        <aside class="panel coach-panel">
+          <div class="panel-title">
+            <div>
+              <p class="eyebrow">Study Coach</p>
               <h2>What should I work on right now?</h2>
             </div>
-            <button id="refreshRecommendation" class="ghost-button" type="button">Refresh</button>
           </div>
 
-          <div id="recommendationCard" class="recommendation-card"></div>
-        </section>
+          <div id="coachRecommendation" class="coach-card"></div>
 
-        <section class="panel reveal assignments-panel">
-          <div class="panel-heading">
+          <div class="coach-actions">
+            <button id="startRecommendedQuest" class="primary-button" type="button">Start recommended quest</button>
+            <button id="makeQuestSmaller" class="ghost-button" type="button">Make it smaller</button>
+            <button id="pickSomethingElse" class="ghost-button" type="button">Pick something else</button>
+          </div>
+
+          <div class="session-panel">
+            <div class="session-header">
+              <div>
+                <p class="eyebrow">Focus Session</p>
+                <h3>Pomodoro timer</h3>
+              </div>
+              <div id="timerStatus" class="session-status">Not running</div>
+            </div>
+
+            <div id="activeQuestSummary" class="active-quest-summary">Pick a quest to start a tiny mission.</div>
+
+            <div class="timer-presets" role="group" aria-label="Focus timer length">
+              <button class="timer-chip active" type="button" data-duration="10">10 min</button>
+              <button class="timer-chip" type="button" data-duration="25">25 min</button>
+              <button class="timer-chip" type="button" data-duration="45">45 min</button>
+              <button class="timer-chip" type="button" data-duration="60">60 min</button>
+            </div>
+
+            <div class="timer-display">
+              <strong id="timerCountdown">10:00</strong>
+              <span id="timerCaption">Micro Quest timer ready</span>
+            </div>
+
+            <div class="timer-actions">
+              <button id="startTimerButton" class="primary-button" type="button">Start focus session</button>
+              <button id="completeTimerButton" class="ghost-button" type="button">Celebrate finish</button>
+            </div>
+
+            <div id="celebrationBanner" class="celebration-banner" hidden>
+              Sparkles! Nib is cheering for you. Claim your victory and keep the momentum going.
+            </div>
+          </div>
+        </aside>
+
+        <section class="panel skills-panel">
+          <div class="panel-title">
             <div>
-              <p class="eyebrow">Quest Log</p>
-              <h2>Your assignments</h2>
+              <p class="eyebrow">Subject Skills</p>
+              <h2>Your character build</h2>
             </div>
           </div>
-          <div id="assignmentList" class="assignment-list"></div>
-        </section>
-
-        <section class="panel reveal detail-panel">
-          <div class="panel-heading">
-            <div>
-              <p class="eyebrow">Selected Mission</p>
-              <h2 id="selectedAssignmentTitle">Choose an assignment</h2>
-            </div>
-            <div class="action-row">
-              <button id="rebuildSelected" class="ghost-button" type="button">Rebuild quests</button>
-              <button id="completeNextQuest" class="primary-button" type="button">Finish next quest</button>
-            </div>
-          </div>
-
-          <div id="selectedAssignmentMeta" class="assignment-meta"></div>
-          <div id="questList" class="quest-list"></div>
-        </section>
-
-        <section class="panel reveal skills-panel">
-          <div class="panel-heading">
-            <div>
-              <p class="eyebrow">Character Build</p>
-              <h2>Subject skills</h2>
-            </div>
-          </div>
-          <div id="skillList" class="skill-list"></div>
+          <div id="skillList" class="skills-grid"></div>
         </section>
       </main>
+    </div>
+
+    <div id="assignmentModal" class="modal-shell" hidden>
+      <div class="modal-backdrop" data-close-modal="true"></div>
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="assignmentModalTitle">
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">New Quest Chain</p>
+            <h2 id="assignmentModalTitle">Add an assignment</h2>
+          </div>
+          <button id="closeAssignmentModal" class="icon-button" type="button" aria-label="Close assignment modal">Close</button>
+        </div>
+
+        <form id="assignmentForm" class="modal-form">
+          <label>
+            Assignment name
+            <input id="assignmentTitle" name="title" type="text" placeholder="History essay due Friday" required />
+          </label>
+          <label>
+            Course
+            <div class="course-select-row">
+              <select id="assignmentCourse" name="subject" required></select>
+              <button id="addCourseButton" class="ghost-button" type="button">Add Course</button>
+            </div>
+          </label>
+          <label>
+            Due date
+            <input id="assignmentDueAt" name="dueAt" type="date" />
+          </label>
+          <label>
+            Estimated minutes
+            <input id="assignmentMinutes" name="estimatedMinutes" type="number" min="5" step="5" value="45" />
+          </label>
+          <div class="modal-actions">
+            <button type="button" id="cancelAssignmentModal" class="ghost-button">Cancel</button>
+            <button type="submit" class="primary-button">Generate Quest Chain</button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <script src="./app.js"></script>
