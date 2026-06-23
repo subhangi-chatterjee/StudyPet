@@ -44,6 +44,7 @@ const elements = {
   headerLevel: document.getElementById("headerLevel"),
   headerXp: document.getElementById("headerXp"),
   headerStreak: document.getElementById("headerStreak"),
+  restartAppButton: document.getElementById("restartAppButton"),
   openAssignmentModal: document.getElementById("openAssignmentModal"),
   assignmentModal: document.getElementById("assignmentModal"),
   closeAssignmentModal: document.getElementById("closeAssignmentModal"),
@@ -118,6 +119,14 @@ function saveState() {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
+function resetStateInPlace() {
+  const freshState = structuredClone(defaultState);
+  Object.keys(state).forEach((key) => {
+    delete state[key];
+  });
+  Object.assign(state, freshState);
+}
+
 function saveAndRender() {
   ensureSelectedAssignment();
   ensureActiveQuest();
@@ -126,6 +135,7 @@ function saveAndRender() {
 }
 
 function wireEvents() {
+  elements.restartAppButton.addEventListener("click", restartApp);
   elements.openAssignmentModal.addEventListener("click", openModal);
   elements.closeAssignmentModal.addEventListener("click", closeModal);
   elements.cancelAssignmentModal.addEventListener("click", closeModal);
@@ -221,6 +231,28 @@ function openModal() {
 
 function closeModal() {
   elements.assignmentModal.hidden = true;
+}
+
+function restartApp() {
+  const shouldRestart = window.confirm(
+    "Restart StudyPet from the beginning? This will erase your pet progress, quests, courses, streak, and saved study data on this browser."
+  );
+  if (!shouldRestart) {
+    return;
+  }
+
+  stopTimer();
+  resetStateInPlace();
+  window.localStorage.removeItem(STORAGE_KEY);
+  closeModal();
+  elements.assignmentForm.reset();
+  document.getElementById("assignmentMinutes").value = 45;
+  seedAssignments();
+  ensureSelectedAssignment();
+  ensureActiveQuest();
+  syncTimerSelection();
+  state.statusLine = "Fresh start ready. Add a course and begin your first quest.";
+  saveAndRender();
 }
 
 function handleAddAssignment(event) {
